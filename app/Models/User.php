@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -44,5 +43,24 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function claps()
+    {
+        return $this->hasMany(Clap::class);
+    }
+
+    /**
+     * Lấy tất cả các bài viết mà người dùng này đã vỗ tay.
+     */
+    public function clappedPosts()
+    {
+        return $this->belongsToMany(Post::class, 'claps', 'user_id', 'post_id')
+            ->withTimestamps();
+    }
+
+    public function comments()
+    {
+        return $this->hasMany(Comment::class);
     }
 }
