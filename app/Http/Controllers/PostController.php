@@ -10,6 +10,11 @@ use Illuminate\Support\Str;
 
 class PostController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth')->except(['index', 'show', 'byCategory', 'byTag', 'search']);
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -61,6 +66,9 @@ class PostController extends Controller
             $validated['published_at'] = now();
         }
 
+        // Add user_id
+        $validated['user_id'] = auth()->id();
+
         $post = Post::create($validated);
 
         // Attach tags
@@ -77,6 +85,9 @@ class PostController extends Controller
      */
     public function show(Post $post)
     {
+        // Load relationships
+        $post->load(['user', 'category', 'tags', 'approvedComments.user', 'approvedComments.replies.user']);
+        
         // Tăng view count
         $post->incrementViews();
 
@@ -93,6 +104,7 @@ class PostController extends Controller
                     });
                 }
             })
+            ->with(['user', 'category'])
             ->take(4)
             ->get();
 
@@ -196,24 +208,39 @@ class PostController extends Controller
     {
         $query = $request->get('q');
         
+        if (empty($query)) {
+            return redirect()->route('posts.index');
+        }
+
         $posts = Post::published()
-            ->when($query, function($queryBuilder) use ($query) {
-                $queryBuilder->where(function($subQuery) use ($query) {
-                    $subQuery->where('title', 'like', "%{$query}%")
-                            ->orWhere('content', 'like', "%{$query}%")
-                            ->orWhere('excerpt', 'like', "%{$query}%");
-                })
-                ->orWhereHas('category', function($categoryQuery) use ($query) {
-                    $categoryQuery->where('name', 'like', "%{$query}%");
-                })
-                ->orWhereHas('tags', function($tagQuery) use ($query) {
-                    $tagQuery->where('name', 'like', "%{$query}%");
-                });
+            ->where(function($q) use ($query) {
+                $q->where('title', 'LIKE', "%{$query}%")
+                  ->orWhere('content', 'LIKE', "%{$query}%")
+                  ->orWhere('excerpt', 'LIKE', "%{$query}%");
             })
-            ->recent()
+            ->orWhereHas('category', function($q) use ($query) {
+                $q->where('name', 'LIKE', "%{$query}%");
+            })
+            ->orWhereHas('tags', function($q) use ($query) {
+                $q->where('name', 'LIKE', "%{$query}%");
+            })
             ->with(['category', 'tags'])
+            ->recent()
             ->paginate(12);
 
         return view('posts.search', compact('posts', 'query'));
+    }
+
+    /**
+     * Display user's posts
+     */
+    public function myPosts()
+    {
+        $posts = Post::where('user_id', auth()->id())
+            ->with(['category', 'tags'])
+            ->orderBy('created_at', 'desc')
+            ->paginate(12);
+
+        return view('posts.my-posts', compact('posts'));
     }
 }

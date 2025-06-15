@@ -2,410 +2,491 @@
 
 @section('content')
 <style>
-.hero-section {
-    background: linear-gradient(135deg, #1a8917 0%, #156d12 100%);
-    color: white;
-    padding: 80px 0;
-    margin-bottom: 60px;
-}
-
-.hero-content {
-    text-align: center;
-    max-width: 800px;
+/* Medium-style layout */
+.medium-layout {
+    max-width: 1192px;
     margin: 0 auto;
+    padding: 0 20px;
 }
 
-.hero-title {
-    font-size: 4rem;
-    font-weight: 700;
-    margin-bottom: 20px;
-    letter-spacing: -0.02em;
-}
-
-.hero-subtitle {
-    font-size: 1.2rem;
-    opacity: 0.9;
-    margin-bottom: 40px;
-    line-height: 1.5;
-}
-
-.post-grid {
+.medium-main {
     display: grid;
-    gap: 40px;
-    margin-bottom: 60px;
+    grid-template-columns: 1fr 352px;
+    gap: 64px;
+    padding: 48px 0;
 }
 
-.featured-section {
-    margin-bottom: 60px;
+.medium-content {
+    min-width: 0;
 }
 
-.section-title {
-    font-size: 2rem;
-    font-weight: 700;
-    margin-bottom: 30px;
+.medium-sidebar {
+    position: sticky;
+    top: 100px;
+    height: fit-content;
+}
+
+/* Navigation tabs */
+.medium-tabs {
+    border-bottom: 1px solid #f2f2f2;
+    margin-bottom: 32px;
+    display: flex;
+    gap: 32px;
+    position: sticky;
+    top: 75px;
+    background: white;
+    z-index: 10;
+    padding: 16px 0;
+}
+
+.medium-tab {
+    color: #6b6b6b;
+    text-decoration: none;
+    font-size: 16px;
+    padding: 12px 0;
+    border-bottom: 1px solid transparent;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.medium-tab.active {
+    color: #1a1a1a;
+    border-bottom-color: #1a1a1a;
+}
+
+.medium-tab:hover {
     color: #1a1a1a;
 }
 
-.featured-post {
+/* Article cards */
+.article-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.article-item {
     display: grid;
-    grid-template-columns: 1fr 300px;
-    gap: 40px;
-    padding: 40px 0;
-    border-bottom: 1px solid #e6e6e6;
+    grid-template-columns: 1fr 112px;
+    gap: 24px;
+    padding: 24px 0;
+    border-bottom: 1px solid #f2f2f2;
+    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
 }
 
-.featured-post:last-child {
-    border-bottom: none;
-}
-
-.featured-content h2 {
-    font-size: 1.75rem;
-    font-weight: 700;
-    margin-bottom: 12px;
-    line-height: 1.2;
-}
-
-.featured-content h2 a {
-    color: #1a1a1a;
+.article-item:hover {
+    color: inherit;
     text-decoration: none;
 }
 
-.featured-content h2 a:hover {
-    color: #1a8917;
+.article-item:hover .article-title {
+    color: #1a1a1a;
 }
 
-.featured-excerpt {
-    color: #6b6b6b;
-    font-size: 1rem;
-    line-height: 1.6;
-    margin-bottom: 15px;
+.article-content {
+    min-width: 0;
 }
 
-.post-meta {
+.article-meta {
     display: flex;
     align-items: center;
-    gap: 15px;
-    font-size: 0.875rem;
-    color: #6b6b6b;
+    gap: 8px;
+    margin-bottom: 8px;
 }
 
-.category-tag {
-    background: #f0f0f0;
-    color: #1a1a1a;
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 0.75rem;
-    font-weight: 500;
+.article-author {
+    display: flex;
+    align-items: center;
+    gap: 8px;
     text-decoration: none;
+    color: inherit;
 }
 
-.category-tag:hover {
-    background: #e0e0e0;
-}
-
-.featured-image {
-    width: 100%;
-    height: 200px;
-    object-fit: cover;
-    border-radius: 8px;
-}
-
-.posts-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 30px;
-    margin-bottom: 60px;
-}
-
-.post-card {
-    border: 1px solid #e6e6e6;
-    border-radius: 12px;
-    overflow: hidden;
-    transition: all 0.2s ease;
-    background: white;
-}
-
-.post-card:hover {
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-    transform: translateY(-2px);
-}
-
-.post-card-image {
-    width: 100%;
-    height: 200px;
-    object-fit: cover;
-}
-
-.post-card-content {
-    padding: 20px;
-}
-
-.post-card-title {
-    font-size: 1.25rem;
+.author-avatar {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #1a8917;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
     font-weight: 600;
-    margin-bottom: 10px;
-    line-height: 1.3;
 }
 
-.post-card-title a {
+.author-name {
+    font-size: 13px;
     color: #1a1a1a;
-    text-decoration: none;
+    font-weight: 400;
 }
 
-.post-card-title a:hover {
-    color: #1a8917;
-}
-
-.post-card-excerpt {
+.article-category {
+    font-size: 13px;
     color: #6b6b6b;
-    font-size: 0.875rem;
-    line-height: 1.5;
-    margin-bottom: 15px;
+    text-decoration: none;
+    padding: 0 8px;
+    position: relative;
+}
+
+.article-category:before {
+    content: "in";
+    margin-right: 4px;
+    color: #6b6b6b;
+}
+
+.article-category:hover {
+    color: #1a1a1a;
+    text-decoration: underline;
+}
+
+.article-title {
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 4px;
+    color: #1a1a1a;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.article-subtitle {
+    font-size: 16px;
+    line-height: 1.4;
+    color: #6b6b6b;
+    margin-bottom: 8px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.article-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 8px;
+}
+
+.article-footer-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-size: 13px;
+    color: #6b6b6b;
+}
+
+.article-date {
+    color: #6b6b6b;
+}
+
+.article-read-time:before {
+    content: "·";
+    margin-right: 6px;
+}
+
+.article-stats {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-size: 13px;
+    color: #6b6b6b;
+}
+
+.article-image {
+    width: 112px;
+    height: 112px;
+    object-fit: cover;
+    border-radius: 4px;
+}
+
+/* Sidebar */
+.sidebar-section {
+    margin-bottom: 40px;
+}
+
+.sidebar-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    color: #1a1a1a;
+}
+
+.sidebar-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sidebar-list li {
+    margin-bottom: 8px;
+}
+
+.sidebar-list a {
+    color: #6b6b6b;
+    text-decoration: none;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.sidebar-list a:hover {
+    color: #1a1a1a;
+    text-decoration: underline;
+}
+
+.staff-pick-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 16px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #f2f2f2;
+}
+
+.staff-pick-item:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.staff-pick-avatar {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #1a8917;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+.staff-pick-content {
+    min-width: 0;
+}
+
+.staff-pick-author {
+    font-size: 13px;
+    color: #1a1a1a;
+    font-weight: 400;
+    margin-bottom: 4px;
+}
+
+.staff-pick-title {
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.4;
+    color: #1a1a1a;
+    margin-bottom: 4px;
     display: -webkit-box;
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
 
-.sidebar {
-    background: #f7f7f7;
-    padding: 40px 0;
+.staff-pick-title a {
+    color: inherit;
+    text-decoration: none;
 }
 
-.sidebar-content {
-    display: grid;
-    grid-template-columns: 1fr 300px;
-    gap: 60px;
-}
-
-.sidebar-section {
-    background: white;
-    padding: 30px;
-    border-radius: 12px;
-    border: 1px solid #e6e6e6;
-}
-
-.sidebar-title {
-    font-size: 1.25rem;
-    font-weight: 600;
-    margin-bottom: 20px;
+.staff-pick-title a:hover {
     color: #1a1a1a;
+    text-decoration: underline;
 }
 
-.category-list {
+.staff-pick-date {
+    font-size: 12px;
+    color: #6b6b6b;
+}
+
+.recommended-topics {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
 }
 
-.category-item {
-    background: #f0f0f0;
-    color: #1a1a1a;
+.topic-tag {
+    background: #f2f2f2;
+    color: #6b6b6b;
     padding: 8px 16px;
     border-radius: 20px;
-    font-size: 0.875rem;
-    font-weight: 500;
+    font-size: 14px;
+    font-weight: 400;
     text-decoration: none;
     transition: all 0.2s ease;
 }
 
-.category-item:hover {
-    background: #1a8917;
-    color: white;
+.topic-tag:hover {
+    background: #e6e6e6;
+    color: #1a1a1a;
+    text-decoration: none;
 }
 
-.tag-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-}
-
-.tag-item {
-    background: #e6f7e6;
+.see-more {
     color: #1a8917;
-    padding: 4px 12px;
-    border-radius: 16px;
-    font-size: 0.75rem;
-    font-weight: 500;
+    font-size: 14px;
     text-decoration: none;
-    transition: all 0.2s ease;
+    margin-top: 16px;
+    display: inline-block;
 }
 
-.tag-item:hover {
-    background: #1a8917;
-    color: white;
+.see-more:hover {
+    color: #156d12;
+    text-decoration: underline;
+}
+
+/* Responsive */
+@media (max-width: 1080px) {
+    .medium-main {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+    
+    .medium-sidebar {
+        position: static;
+        order: -1;
+        background: #f9f9f9;
+        padding: 24px;
+        margin: 0 -20px 32px;
+    }
+    
+    .recommended-topics {
+        display: none;
+    }
 }
 
 @media (max-width: 768px) {
-    .hero-title {
-        font-size: 2.5rem;
+    .medium-layout {
+        padding: 0 16px;
     }
     
-    .featured-post {
+    .article-item {
         grid-template-columns: 1fr;
-        gap: 20px;
+        gap: 16px;
     }
     
-    .sidebar-content {
-        grid-template-columns: 1fr;
-        gap: 30px;
-    }
-    
-    .posts-grid {
-        grid-template-columns: 1fr;
+    .article-image {
+        width: 100%;
+        height: 200px;
+        order: -1;
     }
 }
+
+
 </style>
 
-<!-- Hero Section -->
-<section class="hero-section">
-    <div class="medium-container">
-        <div class="hero-content">
-            <h1 class="hero-title">Chào mừng đến với Medium</h1>
-            <p class="hero-subtitle">
-                Nơi chia sẻ những câu chuyện thú vị, kiến thức bổ ích và truyền cảm hứng cho cộng đồng
-            </p>
-            <a href="{{ route('posts.create') }}" class="medium-btn medium-btn-primary" style="padding: 12px 24px; font-size: 16px;">
-                Bắt đầu viết
-            </a>
-        </div>
-    </div>
-</section>
+<!-- Medium-style Layout -->
+<div class="medium-layout">
+    <div class="medium-main">
+        <main class="medium-content">
+            <!-- Navigation Tabs -->
+            <nav class="medium-tabs">
+                <a href="#" class="medium-tab active">For you</a>
+                <a href="#" class="medium-tab">Following</a>
+                <a href="#" class="medium-tab">Featured</a>
+            </nav>
 
-<div class="medium-container">
-    <!-- Featured Posts -->
-    @if($featuredPosts->count() > 0)
-    <section class="featured-section">
-        <h2 class="section-title">Bài viết nổi bật</h2>
-        @foreach($featuredPosts as $post)
-        <article class="featured-post">
-            <div class="featured-content">
-                <h2>
-                    <a href="{{ route('posts.show', $post) }}">{{ $post->title }}</a>
-                </h2>
-                <p class="featured-excerpt">{{ $post->excerpt }}</p>
-                <div class="post-meta">
-                    @if($post->category)
-                    <a href="{{ route('posts.by-category', $post->category) }}" class="category-tag">
-                        {{ $post->category->name }}
-                    </a>
-                    @endif
-                    <span>{{ $post->published_date }}</span>
-                    <span>{{ $post->read_time_text }}</span>
-                    <span>{{ $post->views }} lượt xem</span>
-                </div>
-            </div>
-            @if($post->featured_image)
-            <div>
-                <img src="{{ Storage::url($post->featured_image) }}" alt="{{ $post->title }}" class="featured-image">
-            </div>
-            @endif
-        </article>
-        @endforeach
-    </section>
-    @endif
-
-    <!-- Recent Posts Grid -->
-    @if($recentPosts->count() > 0)
-    <section>
-        <h2 class="section-title">Bài viết mới nhất</h2>
-        <div class="posts-grid">
-            @foreach($recentPosts as $post)
-            <article class="post-card">
-                @if($post->featured_image)
-                <img src="{{ Storage::url($post->featured_image) }}" alt="{{ $post->title }}" class="post-card-image">
-                @endif
-                <div class="post-card-content">
-                    <h3 class="post-card-title">
-                        <a href="{{ route('posts.show', $post) }}">{{ $post->title }}</a>
-                    </h3>
-                    <p class="post-card-excerpt">{{ $post->excerpt }}</p>
-                    <div class="post-meta">
-                        @if($post->category)
-                        <a href="{{ route('posts.by-category', $post->category) }}" class="category-tag">
-                            {{ $post->category->name }}
-                        </a>
-                        @endif
-                        <span>{{ $post->published_date }}</span>
-                        <span>{{ $post->read_time_text }}</span>
-                    </div>
-                </div>
-            </article>
-            @endforeach
-        </div>
-    </section>
-    @endif
-</div>
-
-<!-- Sidebar Section -->
-@if($categories->count() > 0 || $popularTags->count() > 0)
-<section class="sidebar">
-    <div class="medium-container">
-        <div class="sidebar-content">
-            <div>
-                @if($popularPosts->count() > 0)
-                <div class="sidebar-section">
-                    <h3 class="sidebar-title">Bài viết được xem nhiều</h3>
-                    @foreach($popularPosts as $post)
-                    <article style="margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid #e6e6e6;">
-                        <h4 style="font-size: 1rem; font-weight: 600; margin-bottom: 8px;">
-                            <a href="{{ route('posts.show', $post) }}" style="color: #1a1a1a; text-decoration: none;">
-                                {{ Str::limit($post->title, 60) }}
+            <!-- Article List -->
+            <div class="article-list">
+                @forelse($featuredPosts->concat($recentPosts) as $post)
+                <article class="article-item" onclick="window.location='{{ route('posts.show', $post) }}'">
+                    <div class="article-content">
+                        <div class="article-meta">
+                            <a href="#" class="article-author">
+                                <div class="author-avatar">
+                                    {{ strtoupper(substr($post->user->name ?? 'A', 0, 1)) }}
+                                </div>
+                                <span class="author-name">{{ $post->user->name ?? 'Anonymous' }}</span>
                             </a>
-                        </h4>
-                        <div class="post-meta">
-                            <span>{{ $post->views }} lượt xem</span>
-                            <span>{{ $post->published_date }}</span>
+                            @if($post->category)
+                            <a href="{{ route('posts.by-category', $post->category) }}" class="article-category">
+                                {{ $post->category->name }}
+                            </a>
+                            @endif
                         </div>
-                    </article>
-                    @endforeach
-                </div>
-                @endif
-            </div>
-            
-            <div>
-                @if($categories->count() > 0)
-                <div class="sidebar-section" style="margin-bottom: 30px;">
-                    <h3 class="sidebar-title">Danh mục</h3>
-                    <div class="category-list">
-                        @foreach($categories as $category)
-                        <a href="{{ route('posts.by-category', $category) }}" class="category-item">
-                            {{ $category->name }} ({{ $category->published_posts_count }})
-                        </a>
-                        @endforeach
-                    </div>
-                </div>
-                @endif
-                
-                @if($popularTags->count() > 0)
-                <div class="sidebar-section">
-                    <h3 class="sidebar-title">Thẻ phổ biến</h3>
-                    <div class="tag-list">
-                        @foreach($popularTags as $tag)
-                        <a href="{{ route('posts.by-tag', $tag) }}" class="tag-item">
-                            #{{ $tag->name }}
-                        </a>
-                        @endforeach
-                    </div>
-                </div>
-                @endif
-            </div>
-        </div>
-    </div>
-</section>
-@endif
+                        
+                        <h2 class="article-title">{{ $post->title }}</h2>
+                        
+                        @if($post->excerpt)
+                        <p class="article-subtitle">{{ $post->excerpt }}</p>
+                        @else
+                        <p class="article-subtitle">{{ Str::limit(strip_tags($post->content), 120) }}</p>
+                        @endif
 
-@if($featuredPosts->count() == 0 && $recentPosts->count() == 0)
-<div class="medium-container" style="text-align: center; padding: 80px 0;">
-    <h2 style="font-size: 2rem; font-weight: 600; margin-bottom: 20px; color: #6b6b6b;">
-        Chưa có bài viết nào
-    </h2>
-    <p style="font-size: 1.1rem; color: #6b6b6b; margin-bottom: 30px;">
-        Hãy là người đầu tiên chia sẻ câu chuyện của bạn
-    </p>
-    <a href="{{ route('posts.create') }}" class="medium-btn medium-btn-primary" style="padding: 12px 24px; font-size: 16px;">
-        Viết bài đầu tiên
-    </a>
+                        <div class="article-footer">
+                            <div class="article-footer-left">
+                                <span class="article-date">{{ $post->created_at->format('M j') }}</span>
+                                <span class="article-read-time">{{ ceil(str_word_count(strip_tags($post->content)) / 200) }} min read</span>
+                            </div>
+                            <div class="article-stats">
+                                <span>{{ $post->views ?? 0 }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    @if($post->featured_image)
+                    <img src="{{ Storage::url($post->featured_image) }}" alt="{{ $post->title }}" class="article-image">
+                    @else
+                    <div class="article-image" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 14px;">
+                        {{ strtoupper(substr($post->title, 0, 2)) }}
+                    </div>
+                    @endif
+                </article>
+                @empty
+                <div style="text-align: center; padding: 60px 20px; color: #6b6b6b;">
+                    <h3>Chưa có bài viết nào</h3>
+                    <p>Hãy bắt đầu viết bài viết đầu tiên của bạn!</p>
+                    <a href="{{ route('posts.create') }}" style="color: #1a8917; text-decoration: none; font-weight: 600;">Viết bài →</a>
+                </div>
+                @endforelse
+            </div>
+        </main>
+
+        <!-- Sidebar -->
+        <aside class="medium-sidebar">
+            <!-- Staff Picks -->
+            <div class="sidebar-section">
+                <h3 class="sidebar-title">Staff Picks</h3>
+                @if($popularPosts && $popularPosts->count() > 0)
+                    @foreach($popularPosts->take(3) as $post)
+                    <div class="staff-pick-item">
+                        <div class="staff-pick-avatar">
+                            {{ strtoupper(substr($post->user->name ?? 'A', 0, 1)) }}
+                        </div>
+                        <div class="staff-pick-content">
+                            <div class="staff-pick-author">{{ $post->user->name ?? 'Anonymous' }}</div>
+                            <h4 class="staff-pick-title">
+                                <a href="{{ route('posts.show', $post) }}">{{ $post->title }}</a>
+                            </h4>
+                            <div class="staff-pick-date">{{ $post->created_at->format('M j') }}</div>
+                        </div>
+                    </div>
+                    @endforeach
+                @endif
+                <a href="{{ route('posts.index') }}" class="see-more">See the full list</a>
+            </div>
+
+            <!-- Recommended Topics -->
+            <div class="sidebar-section">
+                <h3 class="sidebar-title">Recommended topics</h3>
+                <div class="recommended-topics">
+                    @if($categories && $categories->count() > 0)
+                        @foreach($categories->take(6) as $category)
+                        <a href="{{ route('posts.by-category', $category) }}" class="topic-tag">
+                            {{ $category->name }}
+                        </a>
+                        @endforeach
+                    @endif
+                </div>
+                <a href="#" class="see-more">See more topics</a>
+            </div>
+        </aside>
+    </div>
 </div>
-@endif
+
 @endsection 

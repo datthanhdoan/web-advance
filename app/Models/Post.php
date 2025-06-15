@@ -4,6 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
 
@@ -22,6 +25,7 @@ class Post extends Model
         'read_time',
         'views',
         'category_id',
+        'user_id',
     ];
 
     protected $casts = [
@@ -64,14 +68,29 @@ class Post extends Model
     }
 
     // Relationships
-    public function category()
+    public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
     }
 
-    public function tags()
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function tags(): BelongsToMany
     {
         return $this->belongsToMany(Tag::class, 'post_tag');
+    }
+
+    public function comments(): HasMany
+    {
+        return $this->hasMany(Comment::class)->with('user', 'replies');
+    }
+
+    public function approvedComments(): HasMany
+    {
+        return $this->hasMany(Comment::class)->approved()->parent()->with('user', 'replies');
     }
 
     // Scopes
@@ -110,6 +129,16 @@ class Post extends Model
     public function getReadTimeTextAttribute()
     {
         return $this->read_time . ' min read';
+    }
+
+    public function getFormattedContentAttribute()
+    {
+        $content = $this->content;
+        // Decode HTML entities if they exist
+        $content = html_entity_decode($content, ENT_QUOTES, 'UTF-8');
+        // Fix common escaped characters
+        $content = str_replace(['&lt;', '&gt;', '&amp;', '&quot;'], ['<', '>', '&', '"'], $content);
+        return $content;
     }
 
     // Methods

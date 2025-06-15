@@ -99,6 +99,11 @@
             font-weight: 500;
             text-decoration: none;
             transition: all 0.2s ease;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
         }
         
         .medium-btn-primary {
@@ -121,6 +126,153 @@
         .medium-btn-outline:hover {
             background: #1a8917;
             color: #fff;
+        }
+        
+        .medium-btn-ghost {
+            background: transparent;
+            color: #6b6b6b;
+            border: none;
+            padding: 8px 12px;
+        }
+        
+        .medium-btn-ghost:hover {
+            background: #f7f7f7;
+            color: #1a1a1a;
+        }
+        
+        /* User dropdown */
+        .user-dropdown {
+            position: relative;
+        }
+        
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #1a8917;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .user-avatar:hover {
+            background: #156d12;
+        }
+        
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border: 1px solid #e6e6e6;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            min-width: 250px;
+            z-index: 100;
+            display: none;
+            margin-top: 8px;
+            padding: 0;
+        }
+        
+        .dropdown-menu.show {
+            display: block;
+        }
+        
+        .user-info {
+            padding: 16px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .user-details {
+            flex: 1;
+        }
+        
+        .user-name {
+            font-weight: 600;
+            color: #1a1a1a;
+            font-size: 0.875rem;
+        }
+        
+        .user-email {
+            color: #6b6b6b;
+            font-size: 0.75rem;
+            margin-top: 2px;
+        }
+        
+        .dropdown-divider {
+            height: 1px;
+            background: #f0f0f0;
+            margin: 8px 0;
+        }
+        
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            color: #1a1a1a;
+            text-decoration: none;
+            font-size: 14px;
+            transition: background 0.2s ease;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .dropdown-item:last-child {
+            border-bottom: none;
+        }
+        
+        .dropdown-item:hover {
+            background: #f7f7f7;
+        }
+        
+        .dropdown-item.danger {
+            color: #dc2626;
+        }
+        
+        .dropdown-item.danger:hover {
+            background: #fef2f2;
+        }
+        
+        /* Notifications */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            border: 1px solid #e6e6e6;
+            border-radius: 8px;
+            padding: 16px 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            max-width: 400px;
+            animation: slideIn 0.3s ease;
+        }
+        
+        .notification.success {
+            border-left: 4px solid #1a8917;
+        }
+        
+        .notification.error {
+            border-left: 4px solid #dc2626;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
         }
         
         .medium-footer {
@@ -212,7 +364,7 @@
                             <input 
                                 type="text" 
                                 name="q" 
-                                placeholder="Tìm kiếm bài viết..." 
+                                placeholder="Search" 
                                 value="{{ request('q') }}"
                                 class="medium-search-input"
                             >
@@ -222,15 +374,86 @@
                 
                 <!-- Actions -->
                 <div class="medium-nav-actions">
-                    <a href="{{ route('posts.create') }}" class="medium-btn medium-btn-outline">
-                        <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                        </svg>
-                        Viết bài
-                    </a>
-                    <a href="{{ route('posts.index') }}" class="medium-btn medium-btn-primary">
-                        Khám phá
-                    </a>
+                    @auth
+                        <a href="{{ route('posts.create') }}" class="medium-btn medium-btn-ghost" style="color: #6b6b6b;">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
+                            </svg>
+                            Write
+                        </a>
+                        
+                        <!-- Notifications -->
+                        <button class="medium-btn medium-btn-ghost" onclick="toggleNotifications()" style="color: #6b6b6b;">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5 5v-5zM10.5 3.75a6 6 0 0 1 6 6v2.25l2.25 2.25v2.25H2.25v-2.25L4.5 12V9.75a6 6 0 0 1 6-6z"></path>
+                            </svg>
+                        </button>
+                        
+                        <!-- User Dropdown -->
+                        <div class="user-dropdown">
+                            <div class="user-avatar" onclick="toggleUserDropdown()">
+                                {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
+                            </div>
+                            <div class="dropdown-menu" id="userDropdown">
+                                <div class="user-info">
+                                    <div class="user-avatar">{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</div>
+                                    <div class="user-details">
+                                        <div class="user-name">{{ Auth::user()->name }}</div>
+                                        <div class="user-email">{{ Auth::user()->email }}</div>
+                                    </div>
+                                </div>
+                                <div class="dropdown-divider"></div>
+                                <a href="{{ route('dashboard') }}" class="dropdown-item">
+                                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5a2 2 0 012-2h4a2 2 0 012 2v2H8V5z"></path>
+                                    </svg>
+                                    Dashboard
+                                </a>
+                                <a href="{{ route('posts.my') }}" class="dropdown-item">
+                                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                    </svg>
+                                    Bài viết của tôi
+                                </a>
+                                <a href="{{ route('posts.create') }}" class="dropdown-item">
+                                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                                    </svg>
+                                    Viết bài mới
+                                </a>
+                                <a href="{{ route('profile.edit') }}" class="dropdown-item">
+                                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                    </svg>
+                                    Hồ sơ cá nhân
+                                </a>
+                                <a href="#" class="dropdown-item">
+                                    <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                    </svg>
+                                    Cài đặt
+                                </a>
+                                <form method="POST" action="{{ route('logout') }}" style="margin: 0;">
+                                    @csrf
+                                    <button type="submit" class="dropdown-item danger" style="width: 100%; text-align: left; background: none; border: none; cursor: pointer;">
+                                        <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                                        </svg>
+                                        Đăng xuất
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    @else
+                        <a href="{{ route('login') }}" class="medium-btn medium-btn-ghost">
+                            Sign in
+                        </a>
+                        <a href="{{ route('register') }}" class="medium-btn medium-btn-primary">
+                            Get started
+                        </a>
+                    @endauth
                 </div>
             </nav>
         </div>
@@ -280,16 +503,99 @@
         </div>
     </footer>
 
+    <!-- Flash Messages -->
+    @if(session('success'))
+        <div class="notification success" id="notification">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <strong>Thành công!</strong><br>
+                    {{ session('success') }}
+                </div>
+                <button onclick="closeNotification()" style="background: none; border: none; font-size: 18px; cursor: pointer; color: #6b6b6b;">&times;</button>
+            </div>
+        </div>
+    @endif
+
+    @if(session('error'))
+        <div class="notification error" id="notification">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <strong>Lỗi!</strong><br>
+                    {{ session('error') }}
+                </div>
+                <button onclick="closeNotification()" style="background: none; border: none; font-size: 18px; cursor: pointer; color: #6b6b6b;">&times;</button>
+            </div>
+        </div>
+    @endif
+
+    @if($errors->any())
+        <div class="notification error" id="notification">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <strong>Có lỗi xảy ra!</strong><br>
+                    @foreach($errors->all() as $error)
+                        {{ $error }}<br>
+                    @endforeach
+                </div>
+                <button onclick="closeNotification()" style="background: none; border: none; font-size: 18px; cursor: pointer; color: #6b6b6b;">&times;</button>
+            </div>
+        </div>
+    @endif
+
     <!-- Scripts -->
     <script>
-        // Flash messages
-        @if(session('success'))
-            alert('{{ session('success') }}');
-        @endif
-        
-        @if(session('error'))
-            alert('{{ session('error') }}');
-        @endif
+        // User dropdown toggle
+        function toggleUserDropdown() {
+            const dropdown = document.getElementById('userDropdown');
+            dropdown.classList.toggle('show');
+        }
+
+        // Notifications toggle (placeholder)
+        function toggleNotifications() {
+            alert('Tính năng thông báo sẽ được phát triển trong tương lai!');
+        }
+
+        // Close notification
+        function closeNotification() {
+            const notification = document.getElementById('notification');
+            if (notification) {
+                notification.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => {
+                    notification.remove();
+                }, 300);
+            }
+        }
+
+        // Auto close notification after 5 seconds
+        setTimeout(() => {
+            closeNotification();
+        }, 5000);
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('userDropdown');
+            const avatar = document.querySelector('.user-avatar');
+            
+            if (dropdown && !dropdown.contains(event.target) && !avatar.contains(event.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
+
+        // Add slideOut animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideOut {
+                from {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+                to {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
     </script>
 </body>
 </html> 
