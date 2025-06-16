@@ -5,13 +5,16 @@ namespace App\Http\Controllers;
 use App\Models\Post;
 use App\Models\Category;
 use App\Models\Tag;
+use App\Services\PostService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 
 class PostController extends Controller
 {
-    public function __construct()
+    private PostService $postService;
+
+    public function __construct(PostService $postService)
     {
+        $this->postService = $postService;
         $this->middleware('auth')->except(['index', 'show', 'byCategory', 'byTag', 'search']);
     }
 
@@ -44,40 +47,18 @@ class PostController extends Controller
      */
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'content' => 'required|string',
-            'excerpt' => 'nullable|string|max:500',
-            'featured_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'category_id' => 'nullable|exists:categories,id',
-            'tags' => 'nullable|array',
-            'tags.*' => 'exists:tags,id',
-            'status' => 'required|in:draft,published',
-        ]);
+        $validated = $this->validatePostRequest($request);
 
-        // Upload featured image
-        if ($request->hasFile('featured_image')) {
-            $imagePath = $request->file('featured_image')->store('posts', 'public');
-            $validated['featured_image'] = $imagePath;
+        try {
+            $post = $this->postService->createPost($validated, auth()->user());
+            
+            return redirect()->route('posts.show', $post)
+                ->with('success', 'Bài viết đã được tạo thành công!');
+        } catch (\Exception $e) {
+            return back()
+                ->withInput()
+                ->with('error', 'Có lỗi xảy ra khi tạo bài viết: ' . $e->getMessage());
         }
-
-        // Set published_at if publishing
-        if ($validated['status'] === 'published') {
-            $validated['published_at'] = now();
-        }
-
-        // Add user_id
-        $validated['user_id'] = auth()->id();
-
-        $post = Post::create($validated);
-
-        // Attach tags
-        if (isset($validated['tags'])) {
-            $post->tags()->attach($validated['tags']);
-        }
-
-        return redirect()->route('posts.show', $post)
-            ->with('success', 'Bài viết đã được tạo thành công!');
     }
 
     /**
@@ -88,11 +69,150 @@ class PostController extends Controller
         // Load relationships
         $post->load(['user', 'category', 'tags', 'approvedComments.user', 'approvedComments.replies.user']);
         
-        // Tăng view count
-        $post->incrementViews();
+        // Increment view count
+        $this->postService->incrementViews($post);
 
-        // Related posts
-        $relatedPosts = Post::published()
+        // Get related posts
+        $relatedPosts = $this->getRelatedPosts($post);
+
+        return view('posts.show', compact('post', 'relatedPosts'));
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit(Post $post)
+    {
+        $this->authorize('update', $post);
+        
+        $categories = Category::all();
+        $tags = Tag::all();
+        
+        return view('posts.edit', compact('post', 'categories', 'tags'));
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(Request $request, Post $post)
+    {
+        $this->authorize('update', $post);
+        
+        $validated = $this->validatePostRequest($request);
+
+        try {
+            $post = $this->postService->updatePost($post, $validated);
+            
+            return redirect()->route('posts.show', $post)
+                ->with('success', 'Bài viết đã được cập nhật thành công!');
+        } catch (\Exception $e) {
+            return back()
+                ->withInput()
+                ->with('error', 'Có lỗi xảy ra khi cập nhật bài viết: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(Post $post)
+    {
+        $this->authorize('delete', $post);
+
+        try {
+            $this->postService->deletePost($post);
+            
+            return redirect()->route('posts.index')
+                ->with('success', 'Bài viết đã được xóa thành công!');
+        } catch (\Exception $e) {
+            return back()
+                ->with('error', 'Có lỗi xảy ra khi xóa bài viết: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Posts by category
+     */
+    public function byCategory(Category $category)
+    {
+        $posts = $category->publishedPosts()
+            ->recent()
+            ->with(['category', 'tags'])
+            ->paginate(12);
+
+        return view('posts.by-category', compact('posts', 'category'));
+    }
+
+    /**
+     * Posts by tag
+     */
+    public function byTag(Tag $tag)
+    {
+        $posts = $tag->publishedPosts()
+            ->recent()
+            ->with(['category', 'tags'])
+            ->paginate(12);
+
+        return view('posts.by-tag', compact('posts', 'tag'));
+    }
+
+    /**
+     * Search posts
+     */
+    public function search(Request $request)
+    {
+        $query = $request->get('q');
+        
+        if (empty($query)) {
+            return redirect()->route('posts.index');
+        }
+
+        $filters = [
+            'search' => $query,
+            'per_page' => 12
+        ];
+
+        $posts = $this->postService->getFilteredPosts($filters);
+
+        return view('posts.search', compact('posts', 'query'));
+    }
+
+    /**
+     * User's posts
+     */
+    public function myPosts()
+    {
+        $posts = auth()->user()->posts()
+            ->with(['category', 'tags'])
+            ->latest()
+            ->paginate(12);
+
+        return view('posts.my-posts', compact('posts'));
+    }
+
+    /**
+     * Validate post request
+     */
+    private function validatePostRequest(Request $request): array
+    {
+        return $request->validate([
+            'title' => 'required|string|max:255',
+            'content' => 'required|string',
+            'excerpt' => 'nullable|string|max:500',
+            'featured_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'category_id' => 'nullable|exists:categories,id',
+            'tags' => 'nullable|array',
+            'tags.*' => 'exists:tags,id',
+            'status' => 'required|in:draft,published',
+        ]);
+    }
+
+    /**
+     * Get related posts
+     */
+    private function getRelatedPosts(Post $post): \Illuminate\Database\Eloquent\Collection
+    {
+        return Post::published()
             ->where('id', '!=', $post->id)
             ->where(function($query) use ($post) {
                 if ($post->category_id) {
@@ -107,140 +227,5 @@ class PostController extends Controller
             ->with(['user', 'category'])
             ->take(4)
             ->get();
-
-        return view('posts.show', compact('post', 'relatedPosts'));
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Post $post)
-    {
-        $categories = Category::all();
-        $tags = Tag::all();
-        
-        return view('posts.edit', compact('post', 'categories', 'tags'));
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Post $post)
-    {
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'content' => 'required|string',
-            'excerpt' => 'nullable|string|max:500',
-            'featured_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'category_id' => 'nullable|exists:categories,id',
-            'tags' => 'nullable|array',
-            'tags.*' => 'exists:tags,id',
-            'status' => 'required|in:draft,published',
-        ]);
-
-        // Upload new featured image
-        if ($request->hasFile('featured_image')) {
-            // Delete old image if exists
-            if ($post->featured_image) {
-                \Storage::disk('public')->delete($post->featured_image);
-            }
-            
-            $imagePath = $request->file('featured_image')->store('posts', 'public');
-            $validated['featured_image'] = $imagePath;
-        }
-
-        // Set published_at if publishing for first time
-        if ($validated['status'] === 'published' && $post->status !== 'published') {
-            $validated['published_at'] = now();
-        }
-
-        $post->update($validated);
-
-        // Sync tags
-        if (isset($validated['tags'])) {
-            $post->tags()->sync($validated['tags']);
-        } else {
-            $post->tags()->detach();
-        }
-
-        return redirect()->route('posts.show', $post)
-            ->with('success', 'Bài viết đã được cập nhật thành công!');
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Post $post)
-    {
-        // Delete featured image if exists
-        if ($post->featured_image) {
-            \Storage::disk('public')->delete($post->featured_image);
-        }
-
-        // Delete post (tags will be detached automatically due to cascade)
-        $post->delete();
-
-        return redirect()->route('posts.index')
-            ->with('success', 'Bài viết đã được xóa thành công!');
-    }
-
-    public function byCategory(Category $category)
-    {
-        $posts = $category->publishedPosts()
-            ->recent()
-            ->with(['category', 'tags'])
-            ->paginate(12);
-
-        return view('posts.by-category', compact('posts', 'category'));
-    }
-
-    public function byTag(Tag $tag)
-    {
-        $posts = $tag->publishedPosts()
-            ->recent()
-            ->with(['category', 'tags'])
-            ->paginate(12);
-
-        return view('posts.by-tag', compact('posts', 'tag'));
-    }
-
-    public function search(Request $request)
-    {
-        $query = $request->get('q');
-        
-        if (empty($query)) {
-            return redirect()->route('posts.index');
-        }
-
-        $posts = Post::published()
-            ->where(function($q) use ($query) {
-                $q->where('title', 'LIKE', "%{$query}%")
-                  ->orWhere('content', 'LIKE', "%{$query}%")
-                  ->orWhere('excerpt', 'LIKE', "%{$query}%");
-            })
-            ->orWhereHas('category', function($q) use ($query) {
-                $q->where('name', 'LIKE', "%{$query}%");
-            })
-            ->orWhereHas('tags', function($q) use ($query) {
-                $q->where('name', 'LIKE', "%{$query}%");
-            })
-            ->with(['category', 'tags'])
-            ->recent()
-            ->paginate(12);
-
-        return view('posts.search', compact('posts', 'query'));
-    }
-
-    /**
-     * Display user's posts
-     */
-    public function myPosts()
-    {
-        $posts = Post::where('user_id', auth()->id())
-            ->with(['category', 'tags'])
-            ->orderBy('created_at', 'desc')
-            ->paginate(12);
-
-        return view('posts.my-posts', compact('posts'));
     }
 }

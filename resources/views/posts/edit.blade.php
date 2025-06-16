@@ -10,10 +10,11 @@
 
 @section('content')
 <div class="create-post-container">
-    <h1 class="create-post-title">Tạo bài viết mới</h1>
+    <h1 class="create-post-title">Chỉnh sửa bài viết</h1>
     
-    <form action="{{ route('posts.store') }}" method="POST" enctype="multipart/form-data">
+    <form action="{{ route('posts.update', $post) }}" method="POST" enctype="multipart/form-data">
         @csrf
+        @method('PUT')
         
         {{-- Title Input --}}
         @include('layouts.partials.form-components', [
@@ -21,6 +22,7 @@
             'name' => 'title',
             'label' => 'Tiêu đề bài viết',
             'placeholder' => 'Nhập tiêu đề hấp dẫn cho bài viết của bạn...',
+            'value' => $post->title,
             'required' => true
         ])
 
@@ -30,6 +32,7 @@
             'name' => 'excerpt',
             'label' => 'Tóm tắt',
             'placeholder' => 'Viết tóm tắt ngắn gọn về bài viết (không bắt buộc, sẽ tự động tạo nếu để trống)...',
+            'value' => $post->excerpt,
             'rows' => 3
         ])
 
@@ -39,21 +42,33 @@
             'name' => 'category_id',
             'label' => 'Danh mục',
             'placeholder' => 'Chọn danh mục (không bắt buộc)',
+            'value' => $post->category_id,
             'options' => $categories->pluck('name', 'id')->toArray()
         ])
 
         {{-- Tags Selector --}}
         @include('layouts.partials.tags-selector', [
             'tags' => $tags,
+            'selectedTags' => $post->tags->pluck('id')->toArray(),
             'label' => 'Thẻ'
         ])
+
+        {{-- Current Featured Image --}}
+        @if($post->featured_image)
+            <div class="form-group">
+                <label class="form-label">Ảnh bìa hiện tại</label>
+                <div class="current-image">
+                    <img src="{{ Storage::url($post->featured_image) }}" alt="Current featured image" style="max-width: 300px; height: auto; border-radius: 8px;">
+                </div>
+            </div>
+        @endif
 
         {{-- Featured Image Upload --}}
         @include('layouts.partials.file-upload', [
             'name' => 'featured_image',
-            'label' => 'Ảnh bìa bài viết',
-            'uploadText' => 'Nhấp để chọn ảnh bìa',
-            'description' => 'PNG, JPG, GIF tối đa 2MB'
+            'label' => 'Thay đổi ảnh bìa bài viết',
+            'uploadText' => 'Nhấp để chọn ảnh bìa mới',
+            'description' => 'PNG, JPG, GIF tối đa 2MB (để trống nếu không muốn thay đổi)'
         ])
 
         {{-- Content Textarea --}}
@@ -62,6 +77,7 @@
             'name' => 'content',
             'label' => 'Nội dung',
             'placeholder' => 'Viết nội dung bài viết của bạn...',
+            'value' => $post->content,
             'required' => true,
             'class' => 'form-textarea'
         ])
@@ -71,17 +87,18 @@
             'type' => 'select',
             'name' => 'status',
             'label' => 'Trạng thái',
+            'value' => $post->status,
             'required' => true,
             'options' => [
                 'draft' => 'Bản nháp',
-                'published' => 'Xuất bản ngay'
+                'published' => 'Xuất bản'
             ]
         ])
 
         {{-- Form Actions --}}
         <div class="form-actions">
-            <a href="{{ route('home') }}" class="btn btn-secondary">Hủy</a>
-            <button type="submit" class="btn btn-primary">Tạo bài viết</button>
+            <a href="{{ route('posts.show', $post) }}" class="btn btn-secondary">Hủy</a>
+            <button type="submit" class="btn btn-primary">Cập nhật bài viết</button>
         </div>
     </form>
 </div>

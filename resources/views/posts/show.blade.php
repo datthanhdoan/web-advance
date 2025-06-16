@@ -282,6 +282,11 @@
     gap: 15px;
 }
 
+.post-actions-right {
+    display: flex;
+    gap: 15px;
+}
+
 .action-btn {
     display: flex;
     align-items: center;
@@ -413,6 +418,8 @@
     border-radius: 12px;
     padding: 20px;
     margin-bottom: 30px;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .comment-form-header {
@@ -433,6 +440,11 @@
     justify-content: center;
     font-weight: 600;
     font-size: 16px;
+    flex-shrink: 0;
+}
+
+.comment-form-info {
+    flex: 1;
 }
 
 .comment-form-info strong {
@@ -458,6 +470,9 @@
     outline: none;
     transition: all 0.2s ease;
     background: white;
+    box-sizing: border-box;
+    max-width: 100%;
+    font-family: inherit;
 }
 
 .comment-textarea:focus {
@@ -642,6 +657,7 @@
     margin: 0;
 }
 
+/* Responsive Design */
 @media (max-width: 768px) {
     .post-container {
         padding: 20px 15px;
@@ -663,13 +679,92 @@
         align-items: stretch;
     }
     
-    .post-actions-left {
+    .post-actions-left,
+    .post-actions-right {
         justify-content: center;
+        flex-wrap: wrap;
+    }
+    
+    .action-btn {
+        flex: 1;
+        justify-content: center;
+        min-width: 120px;
+    }
+    
+    .comment-form {
+        padding: 15px;
+    }
+    
+    .comment-form-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    
+    .comment-form-actions {
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .comment-btn-cancel,
+    .comment-btn-submit {
+        width: 100%;
+        text-align: center;
     }
     
     .related-posts-grid {
         grid-template-columns: 1fr;
+        gap: 20px;
     }
+}
+
+.comment-edit-form {
+    margin-top: 15px;
+    padding: 15px;
+    background: #f9f9f9;
+    border: 1px solid #e6e6e6;
+    border-radius: 8px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.reply-form {
+    background: #f9f9f9;
+    border: 1px solid #e6e6e6;
+    border-radius: 8px;
+    padding: 15px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.comment-replies {
+    margin-top: 15px;
+    padding-left: 20px;
+    border-left: 2px solid #f0f0f0;
+}
+
+.comment-reply {
+    background: #fafafa;
+    border: 1px solid #e6e6e6;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 10px;
+}
+
+.no-comments {
+    text-align: center;
+    padding: 60px 20px;
+    color: #6b6b6b;
+}
+
+.no-comments svg {
+    margin: 0 auto 20px;
+    color: #d1d5db;
+}
+
+.no-comments p {
+    font-size: 1rem;
+    margin: 0;
 }
 </style>
 
