@@ -8,6 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
+        Schema::dropIfExists('categories'); // Add this line
         Schema::create('categories', function (Blueprint $table) {
             $table->id();
             $table->string('name');
@@ -22,4 +23,4 @@ return new class extends Migration
     {
         Schema::dropIfExists('categories');
     }
-}; 
+};

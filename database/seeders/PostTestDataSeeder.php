@@ -2,12 +2,11 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
-use App\Models\User;
-use App\Models\Post;
 use App\Models\Category;
+use App\Models\Post;
 use App\Models\Tag;
+use App\Models\User;
+use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 
 class PostTestDataSeeder extends Seeder
@@ -24,6 +23,7 @@ class PostTestDataSeeder extends Seeder
 
         if ($users->isEmpty() || $categories->isEmpty() || $tags->isEmpty()) {
             $this->command->error('Vui lòng chạy CategorySeeder, TagSeeder và tạo users trước!');
+
             return;
         }
 
@@ -40,7 +40,7 @@ class PostTestDataSeeder extends Seeder
                 'category' => 'Lập trình',
                 'tags' => ['Laravel', 'API', 'PHP', 'Backend'],
             ],
-            
+
             // Post draft (chưa publish)
             [
                 'title' => 'Xu hướng thiết kế web 2024',
@@ -52,7 +52,7 @@ class PostTestDataSeeder extends Seeder
                 'category' => 'Thiết kế',
                 'tags' => ['Web Design', 'UI/UX', 'Trends'],
             ],
-            
+
             // Post không có excerpt (sẽ auto generate)
             [
                 'title' => 'Cách tối ưu hóa hiệu suất website',
@@ -64,7 +64,7 @@ class PostTestDataSeeder extends Seeder
                 'category' => 'Công nghệ',
                 'tags' => ['Performance', 'SEO', 'Web Development'],
             ],
-            
+
             // Post có nội dung ngắn
             [
                 'title' => 'Tips học lập trình hiệu quả',
@@ -76,7 +76,7 @@ class PostTestDataSeeder extends Seeder
                 'category' => 'Lập trình',
                 'tags' => ['Programming', 'Tips'],
             ],
-            
+
             // Post có nội dung dài
             [
                 'title' => 'Hướng dẫn chi tiết về Docker cho developers',
@@ -88,7 +88,7 @@ class PostTestDataSeeder extends Seeder
                 'category' => 'DevOps',
                 'tags' => ['Docker', 'DevOps', 'Containerization'],
             ],
-            
+
             // Post về du lịch
             [
                 'title' => 'Khám phá vẻ đẹp Hội An về đêm',
@@ -100,7 +100,7 @@ class PostTestDataSeeder extends Seeder
                 'category' => 'Du lịch',
                 'tags' => ['Hội An', 'Du lịch', 'Việt Nam'],
             ],
-            
+
             // Post về ẩm thực
             [
                 'title' => 'Cách làm bánh mì Việt Nam chuẩn vị',
@@ -112,7 +112,7 @@ class PostTestDataSeeder extends Seeder
                 'category' => 'Ẩm thực',
                 'tags' => ['Bánh mì', 'Món Việt', 'Nấu ăn'],
             ],
-            
+
             // Post về sức khỏe
             [
                 'title' => 'Tập yoga tại nhà cho người mới bắt đầu',
@@ -124,7 +124,7 @@ class PostTestDataSeeder extends Seeder
                 'category' => 'Sức khỏe',
                 'tags' => ['Yoga', 'Sức khỏe', 'Thể dục'],
             ],
-            
+
             // Post có views cao
             [
                 'title' => 'Top 10 framework JavaScript phổ biến nhất 2024',
@@ -136,7 +136,7 @@ class PostTestDataSeeder extends Seeder
                 'category' => 'Lập trình',
                 'tags' => ['JavaScript', 'Framework', 'Frontend'],
             ],
-            
+
             // Post mới nhất
             [
                 'title' => 'Tin tức công nghệ mới nhất tuần này',
@@ -153,7 +153,7 @@ class PostTestDataSeeder extends Seeder
         foreach ($testPosts as $postData) {
             // Tìm category
             $category = $categories->where('name', $postData['category'])->first();
-            if (!$category) {
+            if (! $category) {
                 $category = $categories->random();
             }
 
@@ -178,13 +178,13 @@ class PostTestDataSeeder extends Seeder
                     $postTags[] = $tag->id;
                 }
             }
-            
-            if (!empty($postTags)) {
+
+            if (! empty($postTags)) {
                 $post->tags()->attach($postTags);
             }
         }
 
-        $this->command->info('Đã tạo ' . count($testPosts) . ' posts test thành công!');
+        $this->command->info('Đã tạo '.count($testPosts).' posts test thành công!');
     }
 
     private function getFullContent($type)
@@ -397,9 +397,9 @@ services:
                 <p>AWS, Azure và Google Cloud đều công bố các dịch vụ AI mới với giá cả cạnh tranh hơn.</p>
                 
                 <h3>Cybersecurity</h3>
-                <p>Nhiều lỗ hổng bảo mật mới được phát hiện, các công ty cần cập nhật patch ngay lập tức.</p>'
+                <p>Nhiều lỗ hổng bảo mật mới được phát hiện, các công ty cần cập nhật patch ngay lập tức.</p>',
         ];
 
         return $contents[$type] ?? '<p>Nội dung mẫu cho bài viết.</p>';
     }
-} 
+}

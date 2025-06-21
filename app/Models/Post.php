@@ -8,7 +8,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
-use Carbon\Carbon;
 
 class Post extends Model
 {
@@ -35,33 +34,33 @@ class Post extends Model
     protected static function boot()
     {
         parent::boot();
-        
+
         static::creating(function ($post) {
             if (empty($post->slug)) {
                 $post->slug = Str::slug($post->title);
             }
-            
+
             // Auto calculate read time (assuming 200 words per minute)
-            if (empty($post->read_time) && !empty($post->content)) {
+            if (empty($post->read_time) && ! empty($post->content)) {
                 $wordCount = str_word_count(strip_tags($post->content));
                 $post->read_time = max(1, ceil($wordCount / 200));
             }
-            
+
             // Auto generate excerpt if empty
-            if (empty($post->excerpt) && !empty($post->content)) {
+            if (empty($post->excerpt) && ! empty($post->content)) {
                 $post->excerpt = Str::limit(strip_tags($post->content), 200);
             }
         });
 
         static::updating(function ($post) {
             // Auto calculate read time
-            if (!empty($post->content)) {
+            if (! empty($post->content)) {
                 $wordCount = str_word_count(strip_tags($post->content));
                 $post->read_time = max(1, ceil($wordCount / 200));
             }
-            
+
             // Auto generate excerpt if empty
-            if (empty($post->excerpt) && !empty($post->content)) {
+            if (empty($post->excerpt) && ! empty($post->content)) {
                 $post->excerpt = Str::limit(strip_tags($post->content), 200);
             }
         });
@@ -97,7 +96,7 @@ class Post extends Model
     public function scopePublished($query)
     {
         return $query->where('status', 'published')
-                    ->where('published_at', '<=', now());
+            ->where('published_at', '<=', now());
     }
 
     public function scopeDraft($query)
@@ -128,7 +127,7 @@ class Post extends Model
 
     public function getReadTimeTextAttribute()
     {
-        return $this->read_time . ' min read';
+        return $this->read_time.' min read';
     }
 
     public function getFormattedContentAttribute()
@@ -138,6 +137,7 @@ class Post extends Model
         $content = html_entity_decode($content, ENT_QUOTES, 'UTF-8');
         // Fix common escaped characters
         $content = str_replace(['&lt;', '&gt;', '&amp;', '&quot;'], ['<', '>', '&', '"'], $content);
+
         return $content;
     }
 

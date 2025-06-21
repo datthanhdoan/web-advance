@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Post;
 use App\Models\Category;
+use App\Models\Post;
 use App\Models\Tag;
 use App\Services\PostService;
 use Illuminate\Http\Request;
@@ -38,7 +38,7 @@ class PostController extends Controller
     {
         $categories = Category::all();
         $tags = Tag::all();
-        
+
         return view('posts.create', compact('categories', 'tags'));
     }
 
@@ -51,13 +51,13 @@ class PostController extends Controller
 
         try {
             $post = $this->postService->createPost($validated, auth()->user());
-            
+
             return redirect()->route('posts.show', $post)
                 ->with('success', 'Bài viết đã được tạo thành công!');
         } catch (\Exception $e) {
             return back()
                 ->withInput()
-                ->with('error', 'Có lỗi xảy ra khi tạo bài viết: ' . $e->getMessage());
+                ->with('error', 'Có lỗi xảy ra khi tạo bài viết: '.$e->getMessage());
         }
     }
 
@@ -68,7 +68,7 @@ class PostController extends Controller
     {
         // Load relationships
         $post->load(['user', 'category', 'tags', 'approvedComments.user', 'approvedComments.replies.user']);
-        
+
         // Increment view count
         $this->postService->incrementViews($post);
 
@@ -84,10 +84,10 @@ class PostController extends Controller
     public function edit(Post $post)
     {
         $this->authorize('update', $post);
-        
+
         $categories = Category::all();
         $tags = Tag::all();
-        
+
         return view('posts.edit', compact('post', 'categories', 'tags'));
     }
 
@@ -97,18 +97,18 @@ class PostController extends Controller
     public function update(Request $request, Post $post)
     {
         $this->authorize('update', $post);
-        
+
         $validated = $this->validatePostRequest($request);
 
         try {
             $post = $this->postService->updatePost($post, $validated);
-            
+
             return redirect()->route('posts.show', $post)
                 ->with('success', 'Bài viết đã được cập nhật thành công!');
         } catch (\Exception $e) {
             return back()
                 ->withInput()
-                ->with('error', 'Có lỗi xảy ra khi cập nhật bài viết: ' . $e->getMessage());
+                ->with('error', 'Có lỗi xảy ra khi cập nhật bài viết: '.$e->getMessage());
         }
     }
 
@@ -121,12 +121,12 @@ class PostController extends Controller
 
         try {
             $this->postService->deletePost($post);
-            
+
             return redirect()->route('posts.index')
                 ->with('success', 'Bài viết đã được xóa thành công!');
         } catch (\Exception $e) {
             return back()
-                ->with('error', 'Có lỗi xảy ra khi xóa bài viết: ' . $e->getMessage());
+                ->with('error', 'Có lỗi xảy ra khi xóa bài viết: '.$e->getMessage());
         }
     }
 
@@ -162,14 +162,14 @@ class PostController extends Controller
     public function search(Request $request)
     {
         $query = $request->get('q');
-        
+
         if (empty($query)) {
             return redirect()->route('posts.index');
         }
 
         $filters = [
             'search' => $query,
-            'per_page' => 12
+            'per_page' => 12,
         ];
 
         $posts = $this->postService->getFilteredPosts($filters);
@@ -214,12 +214,12 @@ class PostController extends Controller
     {
         return Post::published()
             ->where('id', '!=', $post->id)
-            ->where(function($query) use ($post) {
+            ->where(function ($query) use ($post) {
                 if ($post->category_id) {
                     $query->where('category_id', $post->category_id);
                 }
                 if ($post->tags->count() > 0) {
-                    $query->orWhereHas('tags', function($q) use ($post) {
+                    $query->orWhereHas('tags', function ($q) use ($post) {
                         $q->whereIn('tags.id', $post->tags->pluck('id'));
                     });
                 }
