@@ -21,14 +21,14 @@ class CommentController extends Controller
     {
         $request->validate([
             'content' => 'required|string|max:1000',
-            'parent_id' => 'nullable|exists:comments,id'
+            'parent_id' => 'nullable|exists:comments,id',
         ]);
 
         $comment = $post->comments()->create([
             'user_id' => Auth::id(),
             'parent_id' => $request->parent_id,
             'content' => $request->content,
-            'is_approved' => true
+            'is_approved' => true,
         ]);
 
         $comment->load('user', 'replies');
@@ -37,7 +37,7 @@ class CommentController extends Controller
             return response()->json([
                 'success' => true,
                 'comment' => $comment,
-                'message' => 'Bình luận đã được thêm thành công!'
+                'message' => 'Bình luận đã được thêm thành công!',
             ]);
         }
 
@@ -49,26 +49,27 @@ class CommentController extends Controller
      */
     public function update(Request $request, Comment $comment)
     {
-        if (!$comment->canEdit(Auth::user())) {
+        if (! $comment->canEdit(Auth::user())) {
             if ($request->ajax()) {
                 return response()->json(['error' => 'Bạn không có quyền chỉnh sửa bình luận này.'], 403);
             }
+
             return redirect()->back()->with('error', 'Bạn không có quyền chỉnh sửa bình luận này.');
         }
 
         $request->validate([
-            'content' => 'required|string|max:1000'
+            'content' => 'required|string|max:1000',
         ]);
 
         $comment->update([
-            'content' => $request->content
+            'content' => $request->content,
         ]);
 
         if ($request->ajax()) {
             return response()->json([
                 'success' => true,
                 'comment' => $comment,
-                'message' => 'Bình luận đã được cập nhật!'
+                'message' => 'Bình luận đã được cập nhật!',
             ]);
         }
 
@@ -80,10 +81,11 @@ class CommentController extends Controller
      */
     public function destroy(Request $request, Comment $comment)
     {
-        if (!$comment->canDelete(Auth::user())) {
+        if (! $comment->canDelete(Auth::user())) {
             if ($request->ajax()) {
                 return response()->json(['error' => 'Bạn không có quyền xóa bình luận này.'], 403);
             }
+
             return redirect()->back()->with('error', 'Bạn không có quyền xóa bình luận này.');
         }
 
@@ -92,7 +94,7 @@ class CommentController extends Controller
         if ($request->ajax()) {
             return response()->json([
                 'success' => true,
-                'message' => 'Bình luận đã được xóa!'
+                'message' => 'Bình luận đã được xóa!',
             ]);
         }
 
@@ -110,7 +112,7 @@ class CommentController extends Controller
 
         return response()->json([
             'comments' => $comments,
-            'count' => $comments->count()
+            'count' => $comments->count(),
         ]);
     }
-} 
+}
